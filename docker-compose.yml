@@ -1,0 +1,11 @@
+services:
+  # Headroom context compression proxy — routes Claude Code API traffic through headroom.local:8787.
+  # Must be running before opening a project that points ANTHROPIC_BASE_URL at it (see headroom_setup.md).
+  headroom:
+    build:
+      context: .
+      dockerfile: infra/headroom.Dockerfile
+    image: headroom-proxy
+    ports:
+      - "8787:8787"
+    restart: unless-stopped
