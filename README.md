@@ -23,37 +23,23 @@ Claude Code → http://headroom.local:8787 (headroom proxy) → https://api.anth
 The proxy compresses large tool outputs (file reads, search results, bash output) before they reach the model.
 
 ## Quick Start
-### Point `headroom.local` at localhost (one-time)
 
-`headroom.local` must resolve to `127.0.0.1`. Add this line to `/etc/hosts` (one-time, requires sudo):
+1. **Point `headroom.local` at localhost** (one-time, requires sudo):
+   ```bash
+   echo "127.0.0.1 headroom.local" | sudo tee -a /etc/hosts
+   ```
 
-```bash
-echo "127.0.0.1 headroom.local" | sudo tee -a /etc/hosts
-```
+2. **Start headroom** (builds the image automatically on first run):
+   ```bash
+   docker compose up headroom -d
+   ```
+   The container restarts automatically on crash and survives machine reboots (`restart: unless-stopped`) — see [STARTUP.md](STARTUP.md) for how that works and how to verify it.
 
-### Start headroom
+3. **Point a project at it** — see [Enable / disable routing in a project](#enable--disable-routing-in-a-project) below.
 
-```bash
-docker compose up headroom -d
-```
+4. **Confirm it's working** — open the [dashboard](#dashboard).
 
-The container restarts automatically on crash and survives machine reboots (`restart: unless-stopped`) — see [STARTUP.md](STARTUP.md) for how that works and how to verify it.
-
-### Stop headroom
-
-```bash
-docker compose stop headroom
-```
-
-### Build the image (first time or after Dockerfile changes)
-
-```bash
-docker compose build headroom
-```
-
-### Dashboard
-
-Start the proxy first, then open:
+## Dashboard
 
 ```
 http://headroom.local:8787/dashboard
@@ -61,7 +47,7 @@ http://headroom.local:8787/dashboard
 
 Shows live compression stats, token savings, and session history.
 
-### Enable / disable routing in a project
+## Enable / disable routing in a project
 
 Add (or uncomment) this in the target project's `.claude/settings.local.json`:
 
@@ -77,7 +63,7 @@ Remove or comment it out, then reload the VSCode window, to bypass the proxy and
 
 > **Warning:** Claude Code will fail to connect if this headroom container is not running while a project has `ANTHROPIC_BASE_URL` pointed at it. Start it first and keep it running for the lifetime of your session.
 
-#### Per-project tracking
+### Per-project tracking
 
 To attribute compression stats to a specific project in the dashboard, append a project name or code to the path instead of pointing at the bare host:
 
@@ -90,6 +76,20 @@ To attribute compression stats to a specific project in the dashboard, append a 
 ```
 
 Use a distinct `<project-name>` per project (e.g. `p/proj-a`, `p/proj-b`) — the proxy is shared across projects, so this is what separates their usage in the dashboard and session history.
+
+## Other commands
+
+### Stop headroom
+
+```bash
+docker compose stop headroom
+```
+
+### Rebuild the image (after Dockerfile changes)
+
+```bash
+docker compose build headroom
+```
 
 ## Files
 

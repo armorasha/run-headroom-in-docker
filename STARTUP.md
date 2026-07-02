@@ -19,7 +19,7 @@ docker compose ps
 docker ps --filter "name=headroom"
 ```
 
-Should show `11_headroom_for_claude_code-headroom-1` as `Up`. Then confirm the proxy answers:
+Should show `headroom` as `Up`. Then confirm the proxy answers:
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}\n" http://headroom.local:8787
