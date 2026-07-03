@@ -4,15 +4,15 @@
 
 Headroom's own documentation cites a 60–95% reduction in token usage from this; the figure hasn't been independently benchmarked in this project, but it lines up with the compression happening on typically-verbose tool output.
 
-This project runs the proxy as a standalone Docker container via Docker Compose, so it can be started once and shared by any project that points `ANTHROPIC_BASE_URL` at it.
+This project runs headroom as a standalone Docker container via Docker Compose, so it can be started once and shared by any project that points `ANTHROPIC_BASE_URL` at it.
 
-> **Do not route this project itself through headroom.** This repo only exists to host and manage the proxy container — its own `.claude/settings.local.json` must never set `ANTHROPIC_BASE_URL` to the proxy. Point *other* projects at it instead.
+> **Do not route this project itself through headroom.** This repo only exists to host and manage the headroom proxy container — its own `.claude/settings.local.json` must never set `ANTHROPIC_BASE_URL` to the proxy. Point *other* projects at it instead.
 
 ## Platform
 
 Built and tested for this specific setup:
 
-- **Claude Code VSCode extension** — routing is configured per-project through `.claude/settings.local.json`, which VSCode reads on window reload. A different Claude Code client (CLI-only, JetBrains) may need a different config mechanism.
+- **Claude Code VSCode extension** — routing is configured per-project through `.claude/settings.local.json` which VSCode reads on window reload. A different Claude Code client (CLI-only, JetBrains) may need a different config mechanism.
 - **Ubuntu** — the reboot-survival setup in [STARTUP.md](STARTUP.md) relies on Ubuntu's systemd-managed `docker.service` starting on boot. Other OS (or Docker Desktop) may need a different approach there.
 
 ## How it works
@@ -49,17 +49,20 @@ Shows live compression stats, token savings, and session history.
 
 ## Enable / disable routing in a project
 
-Add (or uncomment) this in the target project's `.claude/settings.local.json`:
+Add (or uncomment) this in the target project's `.claude/settings.local.json`(not `settings.json`, which is typically committed to git and gets imposed on every machine you attempt to run your project on. Routing through headroom is machine-specific where this headroom docker container runs. And `settings.local.json` to be gitignored):
 
 ```jsonc
 {
   "env": {
     "ANTHROPIC_BASE_URL": "http://headroom.local:8787"
+  },
+  "permissions": {
+    ...
   }
 }
 ```
 
-Remove or comment it out, then reload the VSCode window, to bypass the proxy and go directly to `api.anthropic.com`.
+Remove or comment it out, then reload the VSCode window (`Ctrl+Shift+P` → `Developer: Reload Window`), to bypass the proxy and go directly to `api.anthropic.com`.
 
 > **Warning:** Claude Code will fail to connect if this headroom container is not running while a project has `ANTHROPIC_BASE_URL` pointed at it. Start it first and keep it running for the lifetime of your session.
 
@@ -71,11 +74,14 @@ To attribute compression stats to a specific project in the dashboard, append a 
 {
   "env": {
     "ANTHROPIC_BASE_URL": "http://headroom.local:8787/p/<project-name>"
+  },
+  "permissions": {
+    ...
   }
 }
 ```
 
-Use a distinct `<project-name>` per project (e.g. `p/proj-a`, `p/proj-b`) — the proxy is shared across projects, so this is what separates their usage in the dashboard and session history.
+Use a distinct `<project-name>` per project (e.g. `p/proj-a`, `p/proj-b`) — the headroom is shared across projects, so this is what separates their usage in the dashboard and session history.
 
 ## Other commands
 

@@ -14,21 +14,24 @@ If the container is in a manually-stopped state when the machine goes down, it s
 ## Verifying after a reboot
 
 ```bash
+# from this project folder root
 docker compose ps
-# or
+# or from anywhere
 docker ps --filter "name=headroom"
 ```
 
-Should show `headroom` as `Up`. Then confirm the proxy answers:
+Should show `headroom` as `Up`. 
 
-```bash
-curl -s -o /dev/null -w "%{http_code}\n" http://headroom.local:8787
-```
-
-Or open the dashboard in a browser:
+Open the dashboard in a browser:
 
 ```
 http://headroom.local:8787/dashboard
+```
+
+You can confirm if the proxy answers:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" http://headroom.local:8787
 ```
 
 If it's not running, start it manually:
